@@ -1,0 +1,185 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+#include <string.h>
+#include "structHeader.h"
+#include "protoHeader.h"
+
+void preGame(int argc, char **argv)
+{
+   if(argc == 1)
+   {
+      return;
+   }
+   else if(argc > 2)
+   {
+      fprintf(stderr, "Usage: mastermind [-show]\n");
+      exit(EXIT_FAILURE);
+   }
+   else if(strcmp(argv[1], "-show"))
+   {
+      fprintf(stderr, "Usage: mastermind [-show]\n");
+      exit(EXIT_FAILURE);
+   }
+}
+
+void printWrong(int count, int gg, int exact, int  inexact, int gp)
+{
+   
+   /*if((count != gg && exact != gg) && exact != gp)*/
+   if(exact != gp)
+   {
+      printf("Nope, %d exact guesses and %d inexact guesses\n", exact, inexact);
+   }
+}
+
+int guesses(int *gu, int ch)
+{
+   int g;
+   char gusS[100];
+
+   printf("Enter the number of guesses ");
+   printf("allowed for the game: ");
+   ch = scanf("%s", gusS);
+   printErr(ch);
+   sscanf(gusS, "%d", &g);
+   flush();
+
+   if((sscanf(gusS, "%d", &g) == 0))
+   {
+      printf("The number of guesses must be a positive integer,");
+      printf("please try again\n");
+      return 1;
+   }
+   else
+   {
+      *gu = g;
+   }
+
+   return 0;
+}
+
+int positions(int *po, int ch)
+{
+   int p;
+   char posS[100];
+
+   printf("Enter the number of positions for the game (1-8): ");
+   ch = scanf("%s", posS);
+   printErr(ch);
+   sscanf(posS, "%d", &p);
+   flush();
+
+   if((sscanf(posS, "%d", &p) == 0) || p < 1 || p > 8)
+   {
+      printf("The number of positions must be 1-8, please try again\n");
+      return 1;
+   }
+   else
+   {
+      *po = p;
+   }
+
+   return 0;
+}
+
+int maxLetter(char *input, int ch)
+{
+   char s[100] = "0";
+
+   printf("Enter the maximum letter for the game (A-Z): ");
+   ch  = scanf("%s", s);
+   printErr(ch);
+   flush();
+
+   if(!(sscanf(s, "%[A-Z]s", s)))
+   {
+      printf("The leter must be an uppercase A-Z, please try again\n");
+      return 1;
+   }
+   else
+   {
+      *input = s[0];
+   }
+
+   return 0;
+}
+
+int scanIn(double *random, int ch)
+{
+   double r;
+   char intRando[100];
+
+   printf("Enter the seed for random number generation: ");
+   ch = scanf("%s", intRando);
+   printErr(ch);
+   flush();
+
+   if(sscanf(intRando, "%lf", &r) != 1)
+   {
+      printf("Seed must be an integer value, please try again\n");
+      return 1;
+   }
+   else
+   {
+      *random = r;
+   }
+
+   return 0;
+}
+
+int main(int argc, char *argv[])
+{
+   struct setup g;
+   int exact = 0; 
+   int inexact = 0;
+   int count = 1;
+   int ch = 0;
+   char guess[8];
+   preGame(argc, argv);
+
+   while(scanIn(&g.rN, ch) == 1)
+   {
+
+   }
+
+   while(maxLetter(&g.mL, ch) == 1)
+   {
+
+   }
+
+   while(positions(&g.pos, ch) == 1)
+   {
+
+   }
+
+   while(guesses(&g.gus, ch) == 1)
+   {
+
+   }
+   
+   randomOrder(&g.rN, &g.mL, &g.pos, g.board, argc);
+
+   while(count <= g.gus && exact != g.pos)
+   {
+      while(1 == guessingGame(g.mL, g.pos, guess, count, ch));
+      {
+         
+      }
+      exact = checkBoard(g.board, guess, g.pos);
+      inexact = inExact(exact, g.pos, guess, g.board, g.mL);
+      printWrong(count, g.gus, exact, inexact, g.pos);
+      
+      count++;
+   }
+   if(exact == g.pos)
+   {
+      printf("\nWow, you won in %d guesses - well done!\n", count-1);
+   }
+   else
+   {
+      printf("\nGame over, you ran out of guesses. Better luck next time!\n");
+   }   
+   
+   return 0;
+}
